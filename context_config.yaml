@@ -1,0 +1,8 @@
+docker:
+    server: 'docker.io'
+    username: null
+    password: null
+    org: singlecellpipeline
+    mounts:
+      home: '/juno/work/shah/weinera2/projects/hmmcopy'
+      refdata: /juno/work/shah/reference/scp_testdata_ref/human/GRCh37-lite.fa

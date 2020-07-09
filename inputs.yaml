@@ -1,0 +1,22 @@
+SA922-A90554B-R29-C45:
+  bam: /juno/work/shah/tantalus/single_cell_indexing/bam/A90554B/grch37/BWA_MEM_0_7_6A/numlanes_9/SC-3442/SA922-A90554B-R29-C45.bam
+  column: 45
+  condition: B
+  img_col: 45
+  index_i5: i5-29
+  index_i7: i7-45
+  pick_met: C1
+  primer_i5: GTATAG
+  primer_i7: CTATCT
+  row: 29
+SA922-A90554B-R29-C44:
+  bam: /juno/work/shah/tantalus/single_cell_indexing/bam/A90554B/grch37/BWA_MEM_0_7_6A/numlanes_9/SC-3442/SA922-A90554B-R29-C44.bam
+  column: 44
+  condition: B
+  img_col: 44
+  index_i5: i5-29
+  index_i7: i7-44
+  pick_met: C1
+  primer_i5: GTATAG
+  primer_i7: CTATCT
+  row: 29
