@@ -14,12 +14,12 @@ logging.basicConfig(format=LOGGING_FORMAT, stream=sys.stderr, level=logging.INFO
 
 
 def get_args():
-    p = ArgumentParser()
+	p = ArgumentParser()
 
-    p.add_argument('input', type=str, help='tsv file of dataset information (sample_id, library_id, ticket_id, etc)')
-    p.add_argument('output', help='output folder for storing yaml files')
+	p.add_argument('input', type=str, help='tsv file of dataset information (sample_id, library_id, ticket_id, etc)')
+	p.add_argument('output', help='output folder for storing yaml files')
 
-    return p.parse_args()
+	return p.parse_args()
 
 
 def get_BAM_paths(sample_id, library_id, jira_ticket):
@@ -99,10 +99,11 @@ def main():
 		file_name = str(argv.output) + '/' + str(row['library_id']) + '_inputs.yaml'
 		with open(file_name, 'w') as f:
 			yaml.dump(inputs_yaml, f, default_flow_style=False, sort_keys=False)
-		break
+
+		if i >= 4:
+			break
 
 
-# do some basic testing to make sure stuff is working
 if __name__ == "__main__":
 	load_os_environ()
 	main()
