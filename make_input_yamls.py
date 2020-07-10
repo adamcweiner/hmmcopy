@@ -16,8 +16,8 @@ logging.basicConfig(format=LOGGING_FORMAT, stream=sys.stderr, level=logging.INFO
 def get_args():
 	p = ArgumentParser()
 
-	p.add_argument('input', type=str, help='tsv file of dataset information (sample_id, library_id, ticket_id, etc)')
-	p.add_argument('output', help='output folder for storing yaml files')
+	p.add_argument('samples', type=str, help='tsv file of dataset information (sample_id, library_id, ticket_id, etc)')
+	p.add_argument('dir', type=str, nargs='?', default='input', help='output folder for storing yaml files')
 
 	return p.parse_args()
 
@@ -63,7 +63,7 @@ def get_BAM_paths(sample_id, library_id, jira_ticket):
 
 def main():
 	argv = get_args()
-	df = pd.read_csv(argv.input, sep='\t', index_col=False)
+	df = pd.read_csv(argv.samples, sep='\t', index_col=False)
 
 	for i, row in df.iterrows():
 		print(row['sample_id'], row['library_id'], row['ticket_id'])
@@ -71,7 +71,7 @@ def main():
 		print(len(bam_paths), "number of bam files found")
 
 		inputs_yaml = {}
-		num = 0
+		# num = 0
 		for path in bam_paths:
 			cell_id = os.path.basename(path).split('.')[0]
 			r = cell_id.split('-')[2].replace('R', '')
@@ -89,19 +89,16 @@ def main():
 				'row': int(r)
 				}
 			inputs_yaml[cell_id] = temp_dict
-			num += 1
-			if num >= 2:
-				break
+			# num += 1
+			# if num >= 2:
+			# 	break
 
-		if not os.path.exists(argv.output):
-			os.makedirs(argv.output)
+		if not os.path.exists(argv.dir):
+			os.makedirs(argv.dir)
 
-		file_name = str(argv.output) + '/' + str(row['library_id']) + '_inputs.yaml'
+		file_name = str(argv.dir) + '/' + str(row['library_id']) + '_inputs.yaml'
 		with open(file_name, 'w') as f:
 			yaml.dump(inputs_yaml, f, default_flow_style=False, sort_keys=False)
-
-		if i >= 4:
-			break
 
 
 if __name__ == "__main__":
