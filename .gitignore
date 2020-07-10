@@ -142,4 +142,5 @@ output/
 testdata/
 temp/
 pipeline/
+input/
 *tantalus_credentials.py
