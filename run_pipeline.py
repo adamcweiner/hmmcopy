@@ -23,6 +23,11 @@ def run(chunk):
 	for i, row in chunk.iterrows():
 		file = "{input_dir}/{library_id}_inputs.yaml".format(library_id=row['library_id'], input_dir=argv.input_dir)
 
+		# this line is supposedly memory agnostic but doesn't seem to work
+		# --nativespec \' -n {{ncpus}} -R "rusage[mem={{mem}}]span[ptile={{ncpus}}]select[type==CentOS7]"\' \
+
+		# this line allows me to specify memory & walltime but it reaches memory limit at 16 GB
+		# --nativespec \' -n {ncpus} -W {walltime} -R "rusage[mem={mem}]span[ptile={ncpus}]select[type==CentOS7]"\' \
 		if os.path.exists(file):
 			subprocess.call('single_cell hmmcopy --input_yaml {input_dir}/{library_id}_inputs.yaml \
 				--library_id {library_id} --maxjobs 4 --nocleanup --sentinel_only  \
@@ -32,16 +37,29 @@ def run(chunk):
 				--tmpdir {temp_dir}/{library_id} \
 				--pipelinedir {pipeline_dir}/{library_id} --submit lsf --out_dir {output_dir}/{library_id}'.format(
 					library_id=row['library_id'], input_dir=argv.input_dir, output_dir=argv.output_dir,
-					temp_dir=argv.temp_dir, pipeline_dir=argv.pipeline_dir, ncpus="1", walltime="24:00", mem="16"),
+					temp_dir=argv.temp_dir, pipeline_dir=argv.pipeline_dir, 
+					# ncpus="1", walltime="6:00", mem="32"
+					),
 				shell=True)
 
 
 def main():
 	argv = get_args()
-	df = pd.read_csv(argv.samples, sep='\t', index_col=False, dtype=str)
+	whole_df = pd.read_csv(argv.samples, sep='\t', index_col=False, dtype=str)
+
+	# remove rows from df if the library isn't found in the input folder
+	bad_rows = []
+	for i, row in whole_df.iterrows():
+		file = "{input_dir}/{library_id}_inputs.yaml".format(library_id=row['library_id'], input_dir=argv.input_dir)
+		if not os.path.exists(file):
+			bad_rows.append(i)
+
+	df = whole_df.drop(bad_rows)
+	df.reset_index(inplace=True)
+	df.drop(columns=['index'], inplace=True)
 
 	# create as many processes as there are CPUs on your machine
-	num_processes = multiprocessing.cpu_count()
+	num_processes = min(multiprocessing.cpu_count(), df.shape[0])
 
 	# calculate the chunk size as an integer
 	chunk_size = int(df.shape[0]/num_processes)
