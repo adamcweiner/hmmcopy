@@ -23,7 +23,7 @@ def run(chunk):
 	for i, row in chunk.iterrows():
 		file = "{input_dir}/{library_id}_inputs.yaml".format(library_id=row['library_id'], input_dir=argv.input_dir)
 
-		# this line is supposedly memory agnostic but doesn't seem to work
+		# this line requests 6 GB by default which isn't enough
 		# --nativespec \' -n {{ncpus}} -R "rusage[mem={{mem}}]span[ptile={{ncpus}}]select[type==CentOS7]"\' \
 
 		# this line allows me to specify memory & walltime but it reaches memory limit at 16 GB
@@ -33,12 +33,12 @@ def run(chunk):
 				--library_id {library_id} --maxjobs 4 --nocleanup --sentinel_only  \
 				--submit lsf --loglevel DEBUG \
 				--config_file config.yaml \
-				--nativespec \' -n {{ncpus}} -R "rusage[mem={{mem}}]span[ptile={{ncpus}}]select[type==CentOS7]"\' \
+				--nativespec \' -n {ncpus} -W {walltime} -R "rusage[mem={mem}]span[ptile={ncpus}]select[type==CentOS7]"\' \
 				--tmpdir {temp_dir}/{library_id} \
 				--pipelinedir {pipeline_dir}/{library_id} --submit lsf --out_dir {output_dir}/{library_id}'.format(
 					library_id=row['library_id'], input_dir=argv.input_dir, output_dir=argv.output_dir,
 					temp_dir=argv.temp_dir, pipeline_dir=argv.pipeline_dir, 
-					# ncpus="1", walltime="6:00", mem="32"
+					ncpus="1", walltime="6:00", mem="32"
 					),
 				shell=True)
 
