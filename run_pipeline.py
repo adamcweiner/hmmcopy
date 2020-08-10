@@ -31,14 +31,14 @@ def run(chunk):
 		if os.path.exists(file):
 			subprocess.call('single_cell hmmcopy --input_yaml {input_dir}/{library_id}_inputs.yaml \
 				--library_id {library_id} --maxjobs 4 --nocleanup --sentinel_only  \
-				--submit lsf --loglevel DEBUG \
+				--submit lsf \
 				--config_file config.yaml \
 				--nativespec \' -n {ncpus} -W {walltime} -R "rusage[mem={mem}]span[ptile={ncpus}]select[type==CentOS7]"\' \
 				--tmpdir {temp_dir}/{library_id} \
 				--pipelinedir {pipeline_dir}/{library_id} --submit lsf --out_dir {output_dir}/{library_id}'.format(
 					library_id=row['library_id'], input_dir=argv.input_dir, output_dir=argv.output_dir,
 					temp_dir=argv.temp_dir, pipeline_dir=argv.pipeline_dir, 
-					ncpus="1", walltime="6:00", mem="32"
+					ncpus="1", walltime="6:00", mem="64"
 					),
 				shell=True)
 
