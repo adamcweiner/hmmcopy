@@ -21,7 +21,8 @@ def run(chunk):
 	argv = get_args()
 
 	for i, row in chunk.iterrows():
-		file = "{input_dir}/{library_id}_inputs.yaml".format(library_id=row['library_id'], input_dir=argv.input_dir)
+		file = "{input_dir}/{ticket_id}/{library_id}/{library_id}_inputs.yaml".format(
+				library_id=row['library_id'], ticket_id=row['ticket_id'], input_dir=argv.input_dir)
 
 		# this line requests 6 GB by default which isn't enough
 		# --nativespec \' -n {{ncpus}} -R "rusage[mem={{mem}}]span[ptile={{ncpus}}]select[type==CentOS7]"\' \
@@ -29,14 +30,15 @@ def run(chunk):
 		# this line allows me to specify memory & walltime but it reaches memory limit at 16 GB
 		# --nativespec \' -n {ncpus} -W {walltime} -R "rusage[mem={mem}]span[ptile={ncpus}]select[type==CentOS7]"\' \
 		if os.path.exists(file):
-			subprocess.call('single_cell hmmcopy --input_yaml {input_dir}/{library_id}_inputs.yaml \
+			subprocess.call('single_cell hmmcopy --input_yaml {input_dir}/{ticket_id}/{library_id}/{library_id}_inputs.yaml \
 				--library_id {library_id} --maxjobs 4 --nocleanup --sentinel_only  \
 				--submit lsf \
 				--config_file config.yaml \
 				--nativespec \' -n {ncpus} -W {walltime} -R "rusage[mem={mem}]span[ptile={ncpus}]select[type==CentOS7]"\' \
-				--tmpdir {temp_dir}/{library_id} \
-				--pipelinedir {pipeline_dir}/{library_id} --submit lsf --out_dir {output_dir}/{library_id}'.format(
-					library_id=row['library_id'], input_dir=argv.input_dir, output_dir=argv.output_dir,
+				--tmpdir {temp_dir}/{ticket_id}/{library_id} \
+				--pipelinedir {pipeline_dir}/{ticket_id}/{library_id} --submit lsf --out_dir {output_dir}/{ticket_id}/{library_id}'.format(
+					library_id=row['library_id'], ticket_id=row['ticket_id'],
+					input_dir=argv.input_dir, output_dir=argv.output_dir,
 					temp_dir=argv.temp_dir, pipeline_dir=argv.pipeline_dir, 
 					ncpus="1", walltime="6:00", mem="64"
 					),
@@ -53,7 +55,8 @@ def main():
 	# remove rows from df if the library isn't found in the input folder
 	bad_rows = []
 	for i, row in whole_df.iterrows():
-		file = "{input_dir}/{library_id}_inputs.yaml".format(library_id=row['library_id'], input_dir=argv.input_dir)
+		file = "{input_dir}/{ticket_id}/{library_id}/{library_id}_inputs.yaml".format(
+				library_id=row['library_id'], ticket_id=row['ticket_id'], input_dir=argv.input_dir)
 		if not os.path.exists(file) or row['library_id'] not in nohit_libraries:
 			bad_rows.append(i)
 

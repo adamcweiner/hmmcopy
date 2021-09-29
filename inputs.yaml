@@ -9,6 +9,8 @@ SA922-A90554B-R29-C45:
   primer_i5: GTATAG
   primer_i7: CTATCT
   row: 29
+  sample_id: SA922
+  library_id: A90554B
 SA922-A90554B-R29-C44:
   bam: /juno/work/shah/tantalus/single_cell_indexing/bam/A90554B/grch37/BWA_MEM_0_7_6A/numlanes_9/SC-3442/SA922-A90554B-R29-C44.bam
   column: 44
@@ -20,3 +22,5 @@ SA922-A90554B-R29-C44:
   primer_i5: GTATAG
   primer_i7: CTATCT
   row: 29
+  sample_id: SA922
+  library_id: A90554B

@@ -66,37 +66,44 @@ def main():
 	df = pd.read_csv(argv.samples, sep='\t', index_col=False)
 
 	for i, row in df.iterrows():
-		print(row['sample_id'], row['library_id'], row['ticket_id'])
-		bam_paths = get_BAM_paths(row['sample_id'], row['library_id'], row['ticket_id'])
-		print(len(bam_paths), "number of bam files found")
+		sub_dir = '/' + str(row['ticket_id']) + '/' + str(row['library_id']) + '/'
+		full_prefix = str(argv.dir) + sub_dir
+		file_name = full_prefix + str(row['library_id']) + '_inputs.yaml'
 
-		inputs_yaml = {}
-		for path in bam_paths:
-			cell_id = os.path.basename(path).split('.')[0]
-			r = cell_id.split('-')[2].replace('R', '')
-			c = cell_id.split('-')[3].replace('C', '')
-			temp_dict = {
-				'bam': path,
-				'column': int(c),
-				'condition': 'B',
-				'img_col': int(c),
-				'index_i5': 'i5-' + str(r),
-				'index_i7': 'i7-' + str(c),
-				'pick_met': 'C1',
-				'primer_i5': 'AAAAAA',
-				'primer_i7': 'TTTTTT',
-				'row': int(r)
-				}
-			inputs_yaml[cell_id] = temp_dict
+		# only look for BAM files if the input file doesn't exist yet
+		if not os.path.exists(file_name):
+			print(row['sample_id'], row['library_id'], row['ticket_id'])
+			bam_paths = get_BAM_paths(row['sample_id'], row['library_id'], row['ticket_id'])
+			print(len(bam_paths), "number of bam files found")
 
-		# only write non-empty dicts to input yaml file
-		if inputs_yaml:
-			if not os.path.exists(argv.dir):
-				os.makedirs(argv.dir)
+			inputs_yaml = {}
+			for path in bam_paths:
+				cell_id = os.path.basename(path).split('.')[0]
+				r = cell_id.split('-')[2].replace('R', '')
+				c = cell_id.split('-')[3].replace('C', '')
+				temp_dict = {
+					'bam': path,
+					'column': int(c),
+					'condition': 'B',
+					'img_col': int(c),
+					'index_i5': 'i5-' + str(r),
+					'index_i7': 'i7-' + str(c),
+					'pick_met': 'C1',
+					'primer_i5': 'AAAAAA',
+					'primer_i7': 'TTTTTT',
+					'row': int(r),
+					'sample_id': str(row['sample_id']),
+					'library_id': str(row['library_id'])
+					}
+				inputs_yaml[cell_id] = temp_dict
 
-			file_name = str(argv.dir) + '/' + str(row['library_id']) + '_inputs.yaml'
-			with open(file_name, 'w') as f:
-				yaml.dump(inputs_yaml, f, default_flow_style=False, sort_keys=False)
+			# only write non-empty dicts to input yaml file
+			if inputs_yaml:
+				if not os.path.exists(full_prefix):
+					os.makedirs(full_prefix)
+
+				with open(file_name, 'w') as f:
+					yaml.dump(inputs_yaml, f, default_flow_style=False, sort_keys=False)
 
 
 if __name__ == "__main__":
