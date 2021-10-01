@@ -50,14 +50,16 @@ def main():
 	whole_df = pd.read_csv(argv.samples, sep='\t', index_col=False, dtype=str)
 
 	# nohit_libraries are the contaminated libraries of interest that might give insight to S-phase progress
-	nohit_libraries = ['A96180B', 'A96184A', 'A96149B', 'A96228B', 'A96240A']
+	# nohit_libraries = ['A96180B', 'A96184A', 'A96149B', 'A96228B', 'A96240A']
 
-	# remove rows from df if the library isn't found in the input folder
+	# remove rows from df if the input file is missing or output file is already present
 	bad_rows = []
 	for i, row in whole_df.iterrows():
-		file = "{input_dir}/{ticket_id}/{library_id}/{library_id}_inputs.yaml".format(
+		input_file = "{input_dir}/{ticket_id}/{library_id}/{library_id}_inputs.yaml".format(
 				library_id=row['library_id'], ticket_id=row['ticket_id'], input_dir=argv.input_dir)
-		if not os.path.exists(file) or row['library_id'] not in nohit_libraries:
+		output_file = "{output_dir}/{ticket_id}/{library_id}/{library_id}_reads.csv.gz".format(
+				library_id=row['library_id'], ticket_id=row['ticket_id'], output_dir=argv.output_dir)
+		if not os.path.exists(input_file) or os.path.exists(output_file):
 			bad_rows.append(i)
 
 	df = whole_df.drop(bad_rows)
